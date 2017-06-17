@@ -39,30 +39,71 @@ def create_exchange_rate():
                 # print(currency + " - no value")
                 continue
 
-    print(cur)
     return exchange_rate
 
 
-amount = 0.0
-input_currency = ""
-output_currency = ""
+# EUR -> xxx
+def from_eur(amount, to_currency):
+    rate = exchange_rate.get(to_currency)
+    return amount * rate
 
-options, args = getopt.getopt(sys.argv[1:], "", ["amount=", "input_currency=", "output_currency="])
 
-for opt, args in options:
-    if opt == "--amount":
-        amount = args
+# xxx -> EUR
+def to_eur(amount, from_currency):
+    rate = exchange_rate.get(from_currency)
+    return amount / rate
+
+
+def parse_commandline_parameters():
+    amount = 0.0
+    input_cur = ""
+    output_cur = ""
+    
+    options, args = getopt.getopt(sys.argv[1:], "", ["amount=", "input_currency=", "output_currency="])
+    
+    for opt, args in options:
+        if opt == "--amount":
+            amount = args
+            continue
+        if opt == "--input_currency":
+            input_cur = args
+            continue
+        if opt == "--output_currency":
+            output_cur = args
         continue
-    if opt == "--input_currency":
-        input_currency = args
-        continue
-    if opt == "--output_currency":
-        output_currency = args
-        continue
+    
+    return amount, input_cur, output_cur
+
+
+def is_currency_symbol(currency):
+    satisfactory_currencies = []
+    if currency not in list(CURRENCY_SYMBOLS.keys()):  # maybe input_currency == any symbol?
+        for cur, symbol in CURRENCY_SYMBOLS.items():
+            if symbol == currency:
+                satisfactory_currencies.append(cur)
+
+        if len(satisfactory_currencies) == 0:   # original currency
+            print("Unknown currency!")
+            exit(1)
+        else:
+            return satisfactory_currencies
+    return [currency]
+
+
+
+amount, input_cur, output_cur = parse_commandline_parameters()
+exchange_rate = create_exchange_rate()
+#print(exchange_rate)
 
 print(amount)
+print(input_cur)
+print(output_cur)
+
+input_currency = is_currency_symbol(input_cur)
+if len(output_cur) != 0:
+    output_currency = is_currency_symbol(output_cur)
+else:  # output_currency parameter missing - convert to all known currencies
+    output_currency = list(exchange_rate.keys())
+
 print(input_currency)
 print(output_currency)
-
-exchange_rate = create_exchange_rate()
-print(exchange_rate)
