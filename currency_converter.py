@@ -1,8 +1,24 @@
+import sys
+import getopt
 import urllib.request
 from bs4 import BeautifulSoup
 
 
+# access to web page of the Central bank of the Slovak Republic and load content - the table of exchange rate
+def scrape_web_page():
+    with urllib.request.urlopen(
+            "http://www.nbs.sk/sk/statisticke-udaje/kurzovy-listok/denny-kurzovy-listok-ecb") as url:
+        page = url.read()
+
+    soup = BeautifulSoup(page, "lxml")
+    currency_table = soup.find('table', class_='tblBorder')
+
+    return currency_table
+
+
+# from the table of exchange rate create the dictionary - <currency> : <amount>
 def create_exchange_rate():
+    currency_table = scrape_web_page()
     exchange_rate = {}
     for row in currency_table.findAll("tr"):
         cells = row.findAll("td")
@@ -19,13 +35,26 @@ def create_exchange_rate():
     return exchange_rate
 
 
-with urllib.request.urlopen("http://www.nbs.sk/sk/statisticke-udaje/kurzovy-listok/denny-kurzovy-listok-ecb") as url:
-    page = url.read()
+amount = 0.0
+input_currency = ""
+output_currency = ""
 
-soup = BeautifulSoup(page, "lxml")
-# print(soup.prettify())
-trs = soup.find_all("tr")
-currency_table = soup.find('table', class_='tblBorder')
+options, args = getopt.getopt(sys.argv[1:], "", ["amount=", "input_currency=", "output_currency="])
+
+for opt, args in options:
+    if opt == "--amount":
+        amount = args
+        continue
+    if opt == "--input_currency":
+        input_currency = args
+        continue
+    if opt == "--output_currency":
+        output_currency = args
+        continue
+
+print(amount)
+print(input_currency)
+print(output_currency)
 
 exchange_rate = create_exchange_rate()
-print(exchange_rate)
+#print(exchange_rate)
