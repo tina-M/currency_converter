@@ -113,7 +113,7 @@ def convert(amount, input_currency, output_currency):
 
 
 # convert all input_currencies to all output_currencies (round to 2 decimal places)
-# if currency symbol belong to more than one currency (e.g. '$'), convert to all corresponding currencies
+# if currency symbol belongs to more than one currency (e.g. '$'), convert to all corresponding currencies
 # if there is not any output_currency parameter, convert to all known currencies
 # conversion options:  1 -> 1 / 1 -> M (one to many) / M -> 1 / M -> N (many to many)
 # in case of M -> x option, resultant json is in the form: 'inputX = {}, outputX = {}' where X is the serial
